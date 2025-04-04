@@ -1,14 +1,12 @@
 import React, { useState } from 'react';
-import api from '../Api/Api';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 
 const SignIn = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [message, setMessage] = useState('');
-    const [errors, setErrors] = useState([]);
-    const Navigate = useNavigate()
-
+    const { login, errors, message, setErrors } = useAuth();
+    const navigate = useNavigate();
 
     const validateForm = () => {
         const newErrors = [];
@@ -34,22 +32,7 @@ const SignIn = () => {
             return;
         }
 
-        try {
-            const response = await api.post('/login', { email, password });
-            setMessage('Login successful!');
-            setErrors([]);
-            // Store token and user data
-            localStorage.setItem("token", response.data.access_token);
-            localStorage.setItem("user", JSON.stringify(response.data.user));
-
-            Navigate('/Dashboard')
-
-
-        } catch (error) {
-            console.error(error);
-            setMessage('Login failed!');
-            setErrors(['Invalid email or password']);
-        }
+        await login(email, password);
     };
 
     return (
@@ -64,6 +47,9 @@ const SignIn = () => {
                 <br />
                 <button type="submit">Sign In</button>
             </form>
+            you don't have an account <Link to="/signup">Sign up</Link>
+
+
 
             {errors.length > 0 && (
                 <div style={{ color: 'red' }}>
